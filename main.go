@@ -21,7 +21,11 @@ func main() {
 	case "--help":
 		help()
 
+		// TODO: implement
 	case "--crawl":
+
+	default:
+		fmt.Println(os.Args[1] + " is not a valid argument.\nRunning " + os.Args[0] + " --help may help you!")
 
 	}
 }
