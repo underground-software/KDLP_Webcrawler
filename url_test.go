@@ -58,8 +58,14 @@ func Test_isInternalURL(t *testing.T) {
 		},
 
 		{
-			name:       "External URL",
+			name:       "External URL 1",
 			args:       args{URL: "https://www.google.com/"},
+			isInternal: false,
+		},
+
+		{
+			name:       "External URL 2",
+			args:       args{URL: "https://bssw.io/items/the-developer-certificate-of-origin"},
 			isInternal: false,
 		},
 	}

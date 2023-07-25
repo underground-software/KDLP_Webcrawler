@@ -13,7 +13,5 @@ func isValidURL(URL string) bool {
 
 // Checks whether a URL is internal
 func isInternalURL(URL string) bool {
-
 	return strings.HasPrefix(URL, domain)
-
 }
