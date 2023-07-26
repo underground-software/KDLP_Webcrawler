@@ -1,6 +1,11 @@
 package main
 
-import "testing"
+import (
+	"io"
+	"net/http"
+	"strings"
+	"testing"
+)
 
 func Test_isValidURL(t *testing.T) {
 	type args struct {
@@ -142,6 +147,138 @@ func Test_checkURLStatus(t *testing.T) {
 			if got != tt.status {
 				t.Errorf("checkURLStatus() = %v, want %v", got, tt.status)
 			}
+		})
+	}
+}
+
+func Test_retrieveHTTPContent(t *testing.T) {
+	type args struct {
+		URL string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		content string
+		wantErr bool
+	}{
+		{
+			name:    "Succesful fetch",
+			args:    args{URL: "https://www.google.com"},
+			content: "not empty", // Expecting a non-empty response
+			wantErr: false,
+		},
+		{
+			name:    "Unsuccesful fetch",
+			args:    args{URL: "Invalid"},
+			content: "", // Expecting an empty response
+			wantErr: true,
+		},
+
+		{
+			name:    "Unsuccessful fetch - Non-existent resource",
+			args:    args{URL: "https://www.example.com/non-existent-page"},
+			content: "", // Expecting an empty response
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := retrieveHTTPContent(tt.args.URL)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("fetchHTTPContent() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if tt.content != "" && got == "" {
+				t.Errorf("fetchHTTPContent() returned an empty response, but a non-empty response was expected")
+			}
+			if tt.content == "" && got != "" {
+				t.Errorf("fetchHTTPContent() returned a non-empty response, but an empty response was expected")
+			}
+		})
+	}
+}
+
+func Test_readHTTPResponseBody(t *testing.T) {
+	type args struct {
+		resp *http.Response
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    string
+		wantErr bool
+	}{
+		{
+			name: "Read non-empty response body",
+			args: args{
+				resp: &http.Response{
+					Body: io.NopCloser(strings.NewReader("I'm not empty!")),
+				},
+			},
+			want: "I'm not empty!",
+		},
+		{
+			name: "Read empty response body",
+			args: args{
+				resp: &http.Response{
+					Body: io.NopCloser(strings.NewReader("")),
+				},
+			},
+			want: "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := readHTTPResponseBody(tt.args.resp)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("readHTTPResponseBody() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("readHTTPResponseBody() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_fetchHTTPResponse(t *testing.T) {
+	type args struct {
+		URL string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    *http.Response
+		wantErr bool
+	}{
+		{
+			name: "Successful fetch response",
+			args: args{
+				URL: "https://www.google.com",
+			},
+			wantErr: false,
+		},
+		{
+			name: "Unsuccessful fetch response",
+			args: args{
+				URL: "Invalid",
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := fetchHTTPResponse(tt.args.URL)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("fetchHTTPResponse() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if tt.wantErr {
+				return
+			}
+			_ = got
 		})
 	}
 }
