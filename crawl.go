@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 	"strings"
 
 	"golang.org/x/net/html"
@@ -57,4 +58,23 @@ func extractLinks(content string) []string {
 
 	// Return the extracted links array
 	return links
+}
+
+// Function to write dead links to a file
+func (c *Crawler) writeDeadLinksToFile(filepath string) error {
+	// Open the file in append mode
+	file, err := os.OpenFile(filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	// Write dead links to the file
+	for _, link := range c.deadLinks {
+		if _, err := file.WriteString(link + "\n"); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
