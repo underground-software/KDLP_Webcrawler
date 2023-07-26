@@ -4,18 +4,13 @@ import (
 	"io"
 	"log"
 	"os"
-	"path/filepath"
 )
 
-func openErrorLogFile() (*os.File, error) {
-	// Get the current working directory
-	currentDir, err := os.Getwd()
-	if err != nil {
-		return nil, err
-	}
+func getCurrentDirectory() (string, error) {
+	return os.Getwd()
+}
 
-	// Construct the path for the error log file in the current directory
-	logFilePath := filepath.Join(currentDir, "error_log.txt")
+func openErrorLogFile(logFilePath string) (*os.File, error) {
 
 	// Open (or create then open) the error log file
 	file, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)

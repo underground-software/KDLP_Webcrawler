@@ -16,16 +16,16 @@ func Test_openErrorLogFile(t *testing.T) {
 			name: "Test opening/creating error log file",
 			want: func() *os.File {
 				// Get the current working directory
-				currentDir, err := os.Getwd()
+				currentDir, err := getCurrentDirectory()
 				if err != nil {
 					t.Fatalf("Failed to get current working directory: %v", err)
 				}
 
 				// Construct the path for the error log file in the current directory
-				logFilePath := filepath.Join(currentDir, "error_log.txt")
+				logFilePath := filepath.Join(currentDir, "test_ErrorLog.txt")
 
 				// Open the error log file
-				file, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+				file, err := openErrorLogFile(logFilePath)
 				if err != nil {
 					t.Fatalf("Failed to open error log file: %v", err)
 				}
@@ -38,7 +38,7 @@ func Test_openErrorLogFile(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := openErrorLogFile()
+			got, err := openErrorLogFile(tt.want.Name())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("openErrorLogFile() error = %v, wantErr %v", err, tt.wantErr)
 				return
