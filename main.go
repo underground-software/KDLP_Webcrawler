@@ -6,8 +6,12 @@ import (
 )
 
 func help() {
-	// TODO: Implement
-	fmt.Println("Help is on the way")
+	fmt.Println("Usage:")
+	fmt.Println("\t$ ./KDLP_Webcrawler.git <option>") // TODO make easier
+
+	fmt.Println("\nOptions:")
+	fmt.Println("\t-h, --help             shows a manual")
+	fmt.Println("\t--crawl                recursively crawls domain and retrieves dead links")
 
 }
 
