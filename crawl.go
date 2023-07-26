@@ -16,7 +16,7 @@ func newCrawler() *Crawler {
 }
 
 // Function to extract links from HTML content
-func extractLinks(content string) []string {
+func extractLinks(content string, baseURL string) []string {
 
 	// Initialise links array
 	var links []string
@@ -38,8 +38,15 @@ func extractLinks(content string) []string {
 			// For each attribute in the "a" tag
 			for _, attr := range n.Attr {
 
-				// If the attribute key is "href" and the URL/link is valid
-				if attr.Key == "href" && isValidURL(attr.Val) {
+				// If the attribute key is "href"
+				if attr.Key == "href" {
+
+					// Check if the URL is relative
+					if !strings.HasPrefix(attr.Val, "http://") && !strings.HasPrefix(attr.Val, "https://") {
+
+						// Convert the relative URL to absolute URL by appending the base URL
+						attr.Val = baseURL + attr.Val
+					}
 
 					// Append valid URL to links array
 					links = append(links, attr.Val)
