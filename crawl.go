@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -79,6 +80,24 @@ func (c *Crawler) writeDeadLinksToFile(filepath string) error {
 	// Write dead links to the file
 	for _, link := range c.deadLinks {
 		if _, err := file.WriteString(link + "\n"); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func saveDeadLinksToFile(deadLinks []string) error {
+	// Open the dead links file in write-only mode
+	file, err := os.OpenFile("dead_links.txt", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	// Write each dead link to the file, one link per line
+	for _, link := range deadLinks {
+		if _, err := fmt.Fprintln(file, link); err != nil {
 			return err
 		}
 	}

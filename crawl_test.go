@@ -138,6 +138,7 @@ func TestCrawler_writeDeadLinksToFile(t *testing.T) {
 				}
 
 				outputLines := strings.Split(string(fileContent), "\n")
+
 				// Ignore the last empty line
 				outputLines = outputLines[:len(outputLines)-1]
 
@@ -146,6 +147,50 @@ func TestCrawler_writeDeadLinksToFile(t *testing.T) {
 					t.Errorf("Unexpected file content. Got: %v, want: %v", outputLines, tt.wantOutput)
 				}
 			}
+		})
+	}
+}
+
+func Test_saveDeadLinksToFile(t *testing.T) {
+	type args struct {
+		deadLinks []string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "Test writing multiple dead links",
+			args: args{
+				deadLinks: []string{
+					"https://www.example.com/deadlink1",
+					"https://www.example.com/deadlink2",
+					"https://www.example.com/deadlink3",
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "Test writing single dead link",
+			args: args{
+				deadLinks: []string{
+					"https://www.example.com/deadlink4",
+				},
+			},
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			// Call the function being tested
+			err := saveDeadLinksToFile(tt.args.deadLinks)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("saveDeadLinksToFile() error = %v, wantErr %v", err, tt.wantErr)
+			}
+
 		})
 	}
 }
