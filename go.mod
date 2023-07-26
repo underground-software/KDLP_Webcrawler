@@ -1,4 +1,4 @@
-module github.com/underground-software/KDLP_Webcrawler.git
+module github.com/underground-software/KDLP_Webcrawler
 
 go 1.20
 
