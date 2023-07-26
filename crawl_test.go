@@ -7,7 +7,6 @@ import (
 	"testing"
 )
 
-// TODO: Add test for relative url <a href="example.html">Example</a>
 func Test_extractLinks(t *testing.T) {
 	type args struct {
 		content string
