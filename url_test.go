@@ -77,3 +77,71 @@ func Test_isInternalURL(t *testing.T) {
 		})
 	}
 }
+
+func Test_checkURLStatus(t *testing.T) {
+	type args struct {
+		URL string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		status  int
+		wantErr bool
+	}{
+		{
+			name:   "HTTP Status Code 200 - OK",
+			args:   args{URL: "http://httpstat.us/200"},
+			status: 200,
+		},
+
+		{
+			name:   "HTTP Status Code 301 - Permanent Redirect",
+			args:   args{URL: "http://httpstat.us/301"},
+			status: 200, // Because it redirects to OK page
+		},
+
+		{
+			name:   "HTTP Status Code 302 - Temporary Redirect",
+			args:   args{URL: "http://httpstat.us/302"},
+			status: 200, // Because it redirects to OK page
+		},
+		{
+			name:   "HTTP Status Code 404 - Not Found",
+			args:   args{URL: "http://httpstat.us/404"},
+			status: 404,
+		},
+		{
+			name:   "HTTP Status Code 410 - Gone",
+			args:   args{URL: "http://httpstat.us/410"},
+			status: 410,
+		},
+		{
+			name:   "HTTP Status Code 500 - Internal Sever Error",
+			args:   args{URL: "http://httpstat.us/500"},
+			status: 500,
+		},
+		{
+			name:   "HTTP Status Code 503 - Service Unavailable",
+			args:   args{URL: "http://httpstat.us/503"},
+			status: 503,
+		},
+		{
+			name:    "Invalid",
+			args:    args{URL: "Invalid"},
+			status:  0,
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := checkURLStatus(tt.args.URL)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("checkURLStatus() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.status {
+				t.Errorf("checkURLStatus() = %v, want %v", got, tt.status)
+			}
+		})
+	}
+}
