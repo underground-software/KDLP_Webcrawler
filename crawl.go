@@ -104,3 +104,58 @@ func (c *Crawler) handleDeadLink(referringURL, deadURL string, statusCode int) {
 		log.Println("Error saving dead links to file:", err)
 	}
 }
+
+// Initiates crawl process for a URL
+func (c *Crawler) crawlURL(URL, referenceURL string) {
+	// Check if the URL has already been visited
+	if c.visited[URL] {
+		fmt.Println("Already visited:", URL)
+		return
+	}
+
+	// Mark the URL as visited
+	c.visited[URL] = true
+	fmt.Println("Added", URL, "to visited map")
+
+	// Check if the URL is valid
+	if !isValidURL(URL) {
+		log.Println("Invalid URL:", URL)
+		return
+	}
+
+	// Fetch the status of the URL
+	statusCode, err := checkURLStatus(URL)
+	if err != nil {
+		log.Println("Error checking status for URL:", URL, "Error:", err)
+		return
+	}
+
+	if statusCode == 404 {
+		c.handleDeadLink(referenceURL, URL, statusCode)
+		return
+	}
+
+	// If internal link: Fetch content, extract URLs, and crawl URLs
+	if isInternalURL(URL, c.domain) {
+		c.crawlInternalURL(URL, referenceURL)
+	}
+}
+
+// crawlInternalURL fetches content, extracts URLs, and crawls URLs for internal links
+func (c *Crawler) crawlInternalURL(URL, referringURL string) {
+	// Fetch the content of the URL
+	content, err := retrieveHTTPContent(URL)
+	if err != nil {
+		log.Println("Error fetching contents of URL:", URL, "Error:", err)
+		return
+	}
+
+	// Parse HTML content and extract links
+	links := extractLinks(content, c.domain)
+	fmt.Println("Links found in", URL, ":", links)
+
+	// Recursively call crawlURL for each internal link found
+	for _, link := range links {
+		c.crawlURL(link, URL)
+	}
+}

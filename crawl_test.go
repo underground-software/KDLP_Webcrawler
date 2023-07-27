@@ -235,3 +235,97 @@ func equalStringSlices(a, b []string) bool {
 	}
 	return true
 }
+
+func TestCrawler_crawlURL(t *testing.T) {
+	type fields struct {
+		visited   map[string]bool
+		deadLinks []string
+	}
+	type args struct {
+		URL          string
+		referenceURL string
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+	}{
+		{
+			name: "Handle Dead Link",
+			fields: fields{
+				visited:   map[string]bool{},
+				deadLinks: []string{},
+			},
+			args: args{
+				URL:          "https://example.com/deadlink",
+				referenceURL: "https://example.com",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := &Crawler{
+				visited:   tt.fields.visited,
+				deadLinks: tt.fields.deadLinks,
+			}
+			c.crawlURL(tt.args.URL, tt.args.referenceURL)
+		})
+	}
+}
+
+func TestCrawler_crawlInternalURL(t *testing.T) {
+	type fields struct {
+		domain    string
+		homeURL   string
+		visited   map[string]bool
+		deadLinks []string
+	}
+	type args struct {
+		URL          string
+		referringURL string
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+	}{
+		{
+			name: "Valid internal URL with links",
+			fields: fields{
+				domain:    "https://website.I.Am.Testing/",
+				homeURL:   "https://website.I.Am.Testing/index.html",
+				visited:   make(map[string]bool),
+				deadLinks: []string{},
+			},
+			args: args{
+				URL:          "https://website.I.Am.Testing/page1",
+				referringURL: "https://website.I.Am.Testing/index.html",
+			},
+		},
+		{
+			name: "Invalid URL",
+			fields: fields{
+				domain:    "https://website.I.Am.Testing/",
+				homeURL:   "https://website.I.Am.Testing/index.html",
+				visited:   make(map[string]bool),
+				deadLinks: []string{},
+			},
+			args: args{
+				URL:          "invalid",
+				referringURL: "https://website.I.Am.Testing/index.html",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := &Crawler{
+				domain:    tt.fields.domain,
+				homeURL:   tt.fields.homeURL,
+				visited:   tt.fields.visited,
+				deadLinks: tt.fields.deadLinks,
+			}
+			c.crawlInternalURL(tt.args.URL, tt.args.referringURL)
+
+		})
+	}
+}
