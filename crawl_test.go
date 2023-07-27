@@ -71,20 +71,36 @@ func Test_extractLinks(t *testing.T) {
 	}
 }
 
+// TODO: Improve?
 func Test_newCrawler(t *testing.T) {
 	tests := []struct {
-		name string
-		want *Crawler
+		name    string
+		domain  string
+		homeURL string
+		want    *Crawler
 	}{
 		{
-			name: "Test case 1",
+			name:    "Test case 1",
+			domain:  "https://website.test/",
+			homeURL: "https://website.test/index.html",
 			want: &Crawler{
-				visited: make(map[string]bool),
+				visited:   make(map[string]bool),
+				deadLinks: []string{},
 			},
-		}}
+		},
+	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := newCrawler(); !reflect.DeepEqual(got, tt.want) {
+			got := newCrawler(tt.domain, tt.homeURL)
+
+			// Check the domain and homeURL fields directly
+			if got.domain != tt.domain || got.homeURL != tt.homeURL {
+				t.Errorf("newCrawler() = %v, want %v", got, tt.want)
+			}
+
+			// Compare the visited and deadLinks fields using reflect.DeepEqual
+			if !reflect.DeepEqual(got.visited, tt.want.visited) || !reflect.DeepEqual(got.deadLinks, tt.want.deadLinks) {
 				t.Errorf("newCrawler() = %v, want %v", got, tt.want)
 			}
 		})

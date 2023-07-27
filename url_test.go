@@ -49,7 +49,8 @@ func Test_isValidURL(t *testing.T) {
 
 func Test_isInternalURL(t *testing.T) {
 	type args struct {
-		URL string
+		URL    string
+		domain string
 	}
 	tests := []struct {
 		name       string
@@ -76,7 +77,7 @@ func Test_isInternalURL(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := isInternalURL(tt.args.URL); got != tt.isInternal {
+			if got := isInternalURL(tt.args.URL, tt.args.domain); got != tt.isInternal {
 				t.Errorf("Expected isInternalURL(%q) to return %v, but got: %v", tt.args.URL, got, tt.isInternal)
 			}
 		})

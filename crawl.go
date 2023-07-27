@@ -9,10 +9,13 @@ import (
 	"golang.org/x/net/html"
 )
 
-// Function to create new instance of web crawler
-func newCrawler() *Crawler {
+// Function to create a new instance of the web crawler
+func newCrawler(domain, homeURL string) *Crawler {
 	return &Crawler{
-		visited: make(map[string]bool),
+		domain:    domain,
+		homeURL:   homeURL,
+		visited:   make(map[string]bool),
+		deadLinks: []string{},
 	}
 }
 
