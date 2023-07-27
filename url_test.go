@@ -59,26 +59,26 @@ func Test_isInternalURL(t *testing.T) {
 	}{
 		{
 			name:       "Internal URL",
-			args:       args{URL: "https://kdlp.underground.software/index.html"},
+			args:       args{URL: "kdlp.underground.software/index.html", domain: "kdlp.underground.software"},
 			isInternal: true,
 		},
 
 		{
 			name:       "External URL 1",
-			args:       args{URL: "https://www.google.com/"},
+			args:       args{URL: "www.google.com", domain: "kdlp.underground.software"},
 			isInternal: false,
 		},
 
 		{
 			name:       "External URL 2",
-			args:       args{URL: "https://bssw.io/items/the-developer-certificate-of-origin"},
+			args:       args{URL: "bssw.io/items/the-developer-certificate-of-origin", domain: "kdlp.underground.software"},
 			isInternal: false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := isInternalURL(tt.args.URL, tt.args.domain); got != tt.isInternal {
-				t.Errorf("Expected isInternalURL(%q) to return %v, but got: %v", tt.args.URL, got, tt.isInternal)
+				t.Errorf("Expected isInternalURL(%q) to return %v, but got: %v", tt.args.URL, tt.isInternal, got)
 			}
 		})
 	}
