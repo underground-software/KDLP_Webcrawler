@@ -124,16 +124,20 @@ func Test_saveDeadLinksToFile(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
 			// Call the function being tested
 			filepath := "test_dead_links.txt"
 			err := saveDeadLinksToFile(filepath, tt.args.deadLinks)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("saveDeadLinksToFile() error = %v, wantErr %v", err, tt.wantErr)
 			}
-
 		})
 	}
+
+	t.Cleanup(func() {
+		if err := os.Remove("test_dead_links.txt"); err != nil {
+			t.Fatalf("Error removing test_dead_links.txt: %v", err)
+		}
+	})
 }
 
 func TestCrawler_handleDeadLink(t *testing.T) {
