@@ -1,7 +1,10 @@
 package main
 
 import (
+	"fmt"
+	"os"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -131,4 +134,88 @@ func Test_saveDeadLinksToFile(t *testing.T) {
 
 		})
 	}
+}
+
+func TestCrawler_handleDeadLink(t *testing.T) {
+	type fields struct {
+		visited   map[string]bool
+		deadLinks []string
+	}
+	type args struct {
+		URL        string
+		statusCode int
+	}
+
+	tests := []struct {
+		name       string
+		fields     fields
+		args       args
+		wantLinks  []string // Expected deadLinks after calling handleDeadLink
+		wantFile   string   // Expected contents of the dead links file
+		wantErrMsg string   // Expected error message (empty if no error)
+	}{
+		{
+			name: "Handle Dead Link",
+			fields: fields{
+				visited:   map[string]bool{},
+				deadLinks: []string{},
+			},
+			args: args{
+				URL:        "https://example.com/deadlink",
+				statusCode: 404,
+			},
+			wantLinks:  []string{"https://example.com/deadlink"},
+			wantFile:   "https://example.com/deadlink",
+			wantErrMsg: "", // No error expected
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := &Crawler{
+				visited:   tt.fields.visited,
+				deadLinks: tt.fields.deadLinks,
+			}
+
+			// Call handleDeadLink
+			c.handleDeadLink(tt.args.URL, tt.args.statusCode)
+
+			// Verify statusCode
+			if tt.args.statusCode != 404 {
+				t.Errorf("handleDeadLink() unexpected statusCode.\nGot: %v\nWant: 404", tt.args.statusCode)
+			}
+
+			// Verify deadLinks slice
+			if !equalStringSlices(c.deadLinks, tt.wantLinks) {
+				t.Errorf("handleDeadLink() unexpected deadLinks.\nGot: %v\nWant: %v", c.deadLinks, tt.wantLinks)
+			}
+
+			// Verify the contents of the dead links file
+			fileContent, err := os.ReadFile("dead_links.txt")
+			if err != nil {
+				t.Fatalf("Error reading dead links file: %v", err)
+			}
+			gotFileContent := strings.TrimSpace(string(fileContent))
+			if gotFileContent != tt.wantFile {
+				t.Errorf("handleDeadLink() unexpected file content.\nGot: %v\nWant: %v", gotFileContent, tt.wantFile)
+			}
+
+			// Print debugging output
+			fmt.Println("Got deadLinks:", c.deadLinks)
+			fmt.Println("Got file content:", gotFileContent)
+		})
+	}
+}
+
+// Helper function to compare two string slices
+func equalStringSlices(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
 }

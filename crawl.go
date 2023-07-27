@@ -85,3 +85,14 @@ func saveDeadLinksToFile(filepath string, deadLinks []string) error {
 
 	return nil
 }
+
+// HandleDeadLink handles the case when the URL is a dead link.
+func (c *Crawler) handleDeadLink(URL string, statusCode int) {
+	log.Println("Dead Link:", URL, "Status Code:", statusCode)
+	c.deadLinks = append(c.deadLinks, URL)
+
+	// Save the updated deadLinks slice to the dead links file
+	if err := saveDeadLinksToFile("dead_links.txt", c.deadLinks); err != nil {
+		log.Println("Error saving dead links to file:", err)
+	}
+}
