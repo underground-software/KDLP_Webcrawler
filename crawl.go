@@ -72,6 +72,7 @@ func extractLinks(content string, baseURL string) []string {
 }
 
 func saveDeadLinksToFile(filepath string, deadLinks []string) error {
+
 	// Open the file in write-only mode
 	file, err := os.OpenFile(filepath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
@@ -90,9 +91,13 @@ func saveDeadLinksToFile(filepath string, deadLinks []string) error {
 }
 
 // HandleDeadLink handles the case when the URL is a dead link.
-func (c *Crawler) handleDeadLink(URL string, statusCode int) {
-	log.Println("Dead Link:", URL, "Status Code:", statusCode)
-	c.deadLinks = append(c.deadLinks, URL)
+func (c *Crawler) handleDeadLink(referringURL, deadURL string, statusCode int) {
+
+	// Log the dead link with the referring URL and status code
+	log.Println("Dead Link:", deadURL, "found on:", referringURL, "Status Code:", statusCode)
+
+	// Append the dead link along with the referring URL to the deadLinks slice
+	c.deadLinks = append(c.deadLinks, "dead link "+deadURL+" found at: "+referringURL)
 
 	// Save the updated deadLinks slice to the dead links file
 	if err := saveDeadLinksToFile("dead_links.txt", c.deadLinks); err != nil {

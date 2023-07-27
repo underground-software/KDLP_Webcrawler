@@ -162,8 +162,9 @@ func TestCrawler_handleDeadLink(t *testing.T) {
 		deadLinks []string
 	}
 	type args struct {
-		URL        string
-		statusCode int
+		referringURL string
+		URL          string
+		statusCode   int
 	}
 
 	tests := []struct {
@@ -172,7 +173,7 @@ func TestCrawler_handleDeadLink(t *testing.T) {
 		args       args
 		wantLinks  []string // Expected deadLinks after calling handleDeadLink
 		wantFile   string   // Expected contents of the dead links file
-		wantErrMsg string   // Expected error message (empty if no error)
+		wantErrMsg string   // Expected error message
 	}{
 		{
 			name: "Handle Dead Link",
@@ -181,12 +182,12 @@ func TestCrawler_handleDeadLink(t *testing.T) {
 				deadLinks: []string{},
 			},
 			args: args{
-				URL:        "https://example.com/deadlink",
-				statusCode: 404,
+				referringURL: "https://example.com",
+				URL:          "https://example.com/deadlink",
+				statusCode:   404,
 			},
-			wantLinks:  []string{"https://example.com/deadlink"},
-			wantFile:   "https://example.com/deadlink",
-			wantErrMsg: "", // No error expected
+			wantLinks: []string{"dead link https://example.com/deadlink found at: https://example.com"},
+			wantFile:  "dead link https://example.com/deadlink found at: https://example.com",
 		},
 	}
 
@@ -197,13 +198,8 @@ func TestCrawler_handleDeadLink(t *testing.T) {
 				deadLinks: tt.fields.deadLinks,
 			}
 
-			// Call handleDeadLink
-			c.handleDeadLink(tt.args.URL, tt.args.statusCode)
-
-			// Verify statusCode
-			if tt.args.statusCode != 404 {
-				t.Errorf("handleDeadLink() unexpected statusCode.\nGot: %v\nWant: 404", tt.args.statusCode)
-			}
+			// Call handleDeadLink with the given arguments
+			c.handleDeadLink(tt.args.referringURL, tt.args.URL, tt.args.statusCode)
 
 			// Verify deadLinks slice
 			if !equalStringSlices(c.deadLinks, tt.wantLinks) {
