@@ -68,28 +68,9 @@ func extractLinks(content string, baseURL string) []string {
 	return links
 }
 
-// Function to write dead links to a file
-func (c *Crawler) writeDeadLinksToFile(filepath string) error {
-	// Open the file in append mode
-	file, err := os.OpenFile(filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	// Write dead links to the file
-	for _, link := range c.deadLinks {
-		if _, err := file.WriteString(link + "\n"); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func saveDeadLinksToFile(deadLinks []string) error {
-	// Open the dead links file in write-only mode
-	file, err := os.OpenFile("dead_links.txt", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+func saveDeadLinksToFile(filepath string, deadLinks []string) error {
+	// Open the file in write-only mode
+	file, err := os.OpenFile(filepath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}
