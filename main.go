@@ -2,10 +2,13 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
+	"path/filepath"
 )
 
 func help() {
+
 	fmt.Println("Usage:")
 	fmt.Println("\t$ ./KDLP_Webcrawler.git <option>") // TODO make easier
 
@@ -17,6 +20,21 @@ func help() {
 
 func main() {
 
+	// Get the current working directory
+	currentDir, err := getCurrentDirectory()
+	if err != nil {
+		log.Fatal("Failed to get current working directory:", err)
+	}
+
+	// Construct the path for the error log file in the current directory
+	logFilePath := filepath.Join(currentDir, "error_log.txt")
+
+	// Sets logged errors to print to both error log file and terminal
+	_, err = openErrorLogFile(logFilePath)
+	if err != nil {
+		log.Fatal("Failed to open error log file:", err)
+	}
+
 	switch os.Args[1] {
 
 	case "-h":
@@ -25,15 +43,32 @@ func main() {
 	case "--help":
 		help()
 
-		// TODO: implement
 	case "--crawl":
+		// Set domain and starting URL for crawling
+		domain := "https://kdlp.underground.software/"
+		homeURL := domain + "index.html"
+
 		// Create a new instance of crawler
-		crawler := newCrawler()
+		crawler := newCrawler(domain, homeURL)
 
 		// Call the crawlURL function on the KDLP home page
-		crawler.crawlURL(homeURL)
+		crawler.crawlURL(homeURL, "") // Empty string for storing URLs
+
+		// Check if there are any dead links
+		if len(crawler.deadLinks) > 0 {
+
+			// Display file path for dead links
+			fmt.Println("Dead links written to: dead_links.txt")
+
+		} else {
+
+			// Display no dead links found in terminal, no dead links file is created
+			fmt.Println("No dead links found")
+
+		}
 
 	default:
+
 		fmt.Println(os.Args[1] + " is not a valid argument.\nRunning " + os.Args[0] + " --help may help you!")
 
 	}
