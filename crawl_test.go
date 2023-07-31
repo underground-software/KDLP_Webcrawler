@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func Test_extractLinks(t *testing.T) {
+func Test_extractValidLinks(t *testing.T) {
 	type args struct {
 		content string
 	}
@@ -36,7 +36,7 @@ func Test_extractLinks(t *testing.T) {
 			want:   []string{"https://www.example.com/page1", "https://www.example.com/page2"},
 		},
 		{
-			name: "Extract links from HTML with invalid URLs",
+			name: "Extract links from HTML with relative URLs",
 			args: args{
 				content: `
 					<!DOCTYPE html>
@@ -52,6 +52,22 @@ func Test_extractLinks(t *testing.T) {
 			want:   []string{"https://www.example.com/page1", "https://www.example.com/relative.html"},
 		},
 		{
+			name: "Extract links from HTML with http scheme",
+			args: args{
+				content: `
+				<!DOCTYPE html>
+				<html>
+				<body>
+					<a href="http://www.example.com/page1">Link 1</a>
+					<a href="relative.html">Relative link</a>
+				</body>
+				</html>
+			`,
+			},
+			domain: "https://www.example.com/",
+			want:   []string{"http://www.example.com/page1", "https://www.example.com/relative.html"},
+		},
+		{
 			name: "HTML parsing error",
 			args: args{
 				content: "<html><body>Malformed HTML",
@@ -63,7 +79,7 @@ func Test_extractLinks(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := extractLinks(tt.args.content, tt.domain)
+			got := extractValidLinks(tt.args.content, tt.domain)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("extractLinks() = %v, want %v", got, tt.want)
 			}

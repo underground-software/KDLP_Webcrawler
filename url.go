@@ -10,8 +10,23 @@ import (
 
 // Checks whether a given URL is valid
 func isValidURL(URL string) bool {
-	_, err := url.ParseRequestURI(URL)
-	return err == nil
+	// Parse the URL
+	parsedURL, err := url.Parse(URL)
+	if err != nil {
+		return false
+	}
+
+	// Check if the URL has a scheme (e.g., http, https, etc.)
+	if parsedURL.Scheme == "" {
+		return false
+	}
+
+	// Check if the URL has a host
+	if parsedURL.Host == "" {
+		return false
+	}
+
+	return true
 }
 
 // Checks whether a URL is internal
@@ -69,4 +84,10 @@ func retrieveHTTPContent(URL string) (string, error) {
 	}
 
 	return content, nil
+}
+
+// Checks if the URL is a fake example URL to be skipped
+func isFakeURL(URL string) bool {
+	// Check if the URL's domain contains "your.computers.ip.addr"
+	return strings.Contains(URL, "your.computers.ip.addr")
 }
