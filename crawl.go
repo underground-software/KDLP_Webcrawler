@@ -155,8 +155,10 @@ func (c *Crawler) crawlInternalURL(URL, referringURL string) {
 	// Parse HTML content and extract links
 	links := extractValidLinks(content, URL)
 
-	// Recursively call crawlURL for each internal link found
+	// Iterate through the links and only crawl unvisited internal links
 	for _, link := range links {
-		c.crawlURL(link, URL)
+		if !c.visited[link] {
+			c.crawlURL(link, URL)
+		}
 	}
 }
