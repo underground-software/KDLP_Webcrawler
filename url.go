@@ -29,9 +29,9 @@ func isValidURL(URL string) bool {
 	return true
 }
 
-// Checks whether a URL is internal
+// Checks whether a URL is internal and doesn't contain "cgit" after the domain name
 func isInternalURL(URL string, domain string) bool {
-	return strings.HasPrefix(URL, domain)
+	return strings.HasPrefix(URL, domain) && !strings.Contains(URL, domain+"cgit")
 }
 
 // Function to fetch HTTP response
@@ -88,6 +88,5 @@ func retrieveHTTPContent(URL string) (string, error) {
 
 // Checks if the URL is a fake example URL to be skipped
 func isFakeURL(URL string) bool {
-	// Check if the URL's domain contains "your.computers.ip.addr"
 	return strings.Contains(URL, "your.computers.ip.addr")
 }

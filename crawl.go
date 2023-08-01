@@ -181,7 +181,7 @@ func (c *Crawler) crawlURL(URL, referenceURL string) {
 	}
 }
 
-// crawlInternalURL fetches content, extracts URLs, and crawls URLs for internal links
+// fetches content, extracts URLs, and crawls URLs for internal links
 func (c *Crawler) crawlInternalURL(URL, referringURL string) {
 	// Fetch the content of the URL
 	content, err := retrieveHTTPContent(URL)
@@ -191,7 +191,7 @@ func (c *Crawler) crawlInternalURL(URL, referringURL string) {
 	}
 
 	// Parse HTML content and extract links
-	links := extractValidLinks(content, c.domain)
+	links := extractValidLinks(content, URL)
 
 	// Recursively call crawlURL for each internal link found
 	for _, link := range links {

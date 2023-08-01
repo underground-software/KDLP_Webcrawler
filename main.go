@@ -45,8 +45,12 @@ func main() {
 
 	case "--crawl":
 		// Set domain and starting URL for crawling
-		domain := "https://kdlp.underground.software/"
-		homeURL := domain + "index.html"
+		domain := "https://prod-01.kdlp.underground.software/"
+		homeURL := domain + "index.md"
+
+		// // Public version
+		// domain := "https://kdlp.underground.software/"
+		// homeURL := domain + "index.html"
 
 		// Create a new instance of crawler
 		crawler := newCrawler(domain, homeURL)
