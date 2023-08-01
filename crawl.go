@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"net/url"
 	"os"
 	"strings"
 
@@ -20,89 +19,63 @@ func newCrawler(domain, homeURL string) *Crawler {
 	}
 }
 
-// Function to extract valid links from HTML content
-func extractValidLinks(content string, baseURL string) []string {
+// Function to recursively extract links from HTML tree
+func findLinks(n *html.Node, baseURL string) []string {
 	// Initialize a map to store resolved and valid URLs
 	linksMap := make(map[string]bool)
 
-	// Initialize a slice to store the final unique valid links
+	// Initialize a slice to store the final unique valid links in order of discovery
 	var links []string
 
-	// Parse HTML content
+	// Helper function to add a link to the linksMap and links slice
+	addLink := func(link string) {
+		if !linksMap[link] {
+			linksMap[link] = true
+			links = append(links, link)
+		}
+	}
+
+	// If node type is element node (type 2) and node data contains attribute "a" (anchor tag)
+	if n.Type == html.ElementNode && n.Data == "a" {
+
+		// For each attribute in the "a" tag
+		for _, attr := range n.Attr {
+
+			// Resolve the URL to handle relative URLs correctly
+			if attr.Key == "href" {
+				absoluteURL, err := resolveURL(baseURL, attr.Val)
+				if err != nil {
+					log.Println("Error resolving URL:", err)
+					continue
+				}
+
+				// Check if the resolved URL is valid and store it in the links map
+				if isValidURL(absoluteURL) {
+					addLink(absoluteURL)
+				} else {
+					log.Println("Invalid URL found:", absoluteURL)
+				}
+			}
+		}
+	}
+
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		links = append(links, findLinks(c, baseURL)...)
+	}
+
+	return links
+}
+
+// Function to extract valid links from HTML content
+func extractValidLinks(content string, baseURL string) []string {
 	doc, err := html.Parse(strings.NewReader(content))
 	if err != nil {
 		log.Println("Error parsing HTML:", err)
 		return nil // Return nil in case of parsing error
 	}
 
-	// Helper function to resolve URLs
-	resolveURL := func(u string) (string, error) {
-		relURL, err := url.Parse(u)
-		if err != nil {
-			return "", err
-		}
-		baseURLParsed, err := url.Parse(baseURL)
-		if err != nil {
-			return "", err
-		}
-		absURL := baseURLParsed.ResolveReference(relURL)
-		return absURL.String(), nil
-	}
-
-	// Recursive function to extract links from HTML tree
-	var findLinks func(*html.Node)
-	findLinks = func(n *html.Node) {
-
-		// If node type is element node (type 2) and node data contains attribute "a" (anchor tag)
-		if n.Type == html.ElementNode && n.Data == "a" {
-
-			// For each attribute in the "a" tag
-			for _, attr := range n.Attr {
-				if attr.Key == "href" {
-
-					// Skip processing "mailto" links
-					if strings.HasPrefix(attr.Val, "mailto:") {
-						continue
-					}
-
-					// Skip processing "data" image links
-					if strings.HasPrefix(attr.Val, "data:image/") {
-						continue
-					}
-
-					// Resolve the URL to handle relative URLs correctly
-					absoluteURL, err := resolveURL(attr.Val)
-					if err != nil {
-						log.Println("Error resolving URL:", err)
-						continue
-					}
-
-					// Check if the resolved URL is valid and store it in the links map
-					if isValidURL(absoluteURL) {
-
-						// Store the valid URL in the links map and slice
-						if !linksMap[absoluteURL] {
-							linksMap[absoluteURL] = true
-							links = append(links, absoluteURL)
-						}
-					} else {
-						log.Println("Invalid URL found:", absoluteURL)
-					}
-				}
-			}
-		}
-
-		// Recursively call findLinks on each child node of the current node
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			findLinks(c)
-		}
-	}
-
 	// Start the recursive link extraction from the root node of the HTML tree
-	findLinks(doc)
-
-	// Return the extracted valid links slice
-	return links
+	return findLinks(doc, baseURL)
 }
 
 func saveDeadLinksToFile(filepath string, deadLinks []string) error {

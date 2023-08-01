@@ -64,18 +64,15 @@ func checkURLStatus(URL string) (int, error) {
 
 // Function to retrieve the HTTP content of a URL page
 func retrieveHTTPContent(URL string) (string, error) {
-	statusCode, err := checkURLStatus(URL)
-	if err != nil {
-		return "", err
-	}
-
-	if statusCode < 200 || statusCode >= 300 {
-		return "", fmt.Errorf("failed to fetch content: received status code %d", statusCode)
-	}
-
 	resp, err := fetchHTTPResponse(URL)
 	if err != nil {
 		return "", err
+	}
+	defer resp.Body.Close()
+
+	statusCode := resp.StatusCode
+	if statusCode < 200 || statusCode >= 300 {
+		return "", fmt.Errorf("failed to fetch content: received status code %d", statusCode)
 	}
 
 	content, err := readHTTPResponseBody(resp)
@@ -84,6 +81,22 @@ func retrieveHTTPContent(URL string) (string, error) {
 	}
 
 	return content, nil
+}
+
+// Function to resolve URLs
+func resolveURL(baseURL string, u string) (string, error) {
+	relURL, err := url.Parse(u)
+	if err != nil {
+		return "", err
+	}
+
+	baseURLParsed, err := url.Parse(baseURL)
+	if err != nil {
+		return "", err
+	}
+
+	absURL := baseURLParsed.ResolveReference(relURL)
+	return absURL.String(), nil
 }
 
 // Checks if the URL is a fake example URL to be skipped
