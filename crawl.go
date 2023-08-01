@@ -19,21 +19,9 @@ func newCrawler(domain, homeURL string) *Crawler {
 	}
 }
 
-// Function to recursively extract links from HTML tree
 func findLinks(n *html.Node, baseURL string) []string {
-	// Initialize a map to store resolved and valid URLs
-	linksMap := make(map[string]bool)
-
 	// Initialize a slice to store the final unique valid links in order of discovery
 	var links []string
-
-	// Helper function to add a link to the linksMap and links slice
-	addLink := func(link string) {
-		if !linksMap[link] {
-			linksMap[link] = true
-			links = append(links, link)
-		}
-	}
 
 	// If node type is element node (type 2) and node data contains attribute "a" (anchor tag)
 	if n.Type == html.ElementNode && n.Data == "a" {
@@ -49,9 +37,9 @@ func findLinks(n *html.Node, baseURL string) []string {
 					continue
 				}
 
-				// Check if the resolved URL is valid and store it in the links map
+				// Check if the resolved URL is valid and store it in the links slice
 				if isValidURL(absoluteURL) {
-					addLink(absoluteURL)
+					links = append(links, absoluteURL)
 				} else {
 					log.Println("Invalid URL found:", absoluteURL)
 				}
@@ -60,6 +48,7 @@ func findLinks(n *html.Node, baseURL string) []string {
 	}
 
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		// Recursively call findLinks only for the child nodes
 		links = append(links, findLinks(c, baseURL)...)
 	}
 
