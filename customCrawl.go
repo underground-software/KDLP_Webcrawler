@@ -5,9 +5,36 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 
 	"golang.org/x/net/html"
 )
+
+func runCustomCrawl(domain, homeURL string) {
+	// Start the timer
+	startTime := time.Now()
+
+	// Create a new instance of the crawler
+	crawler := newCrawler(domain, homeURL)
+
+	// Call the crawlURL function on the home page
+	crawler.crawlURL(homeURL, "") // Empty string for storing URLs
+
+	// Check if there are any dead links
+	if len(crawler.deadLinks) > 0 {
+		// Display file path for dead links
+		fmt.Println("Dead links written to: dead_links.txt")
+	} else {
+		// Display no dead links found in the terminal, no dead links file is created
+		fmt.Println("No dead links found")
+	}
+
+	// Stop the timer
+	elapsedTime := time.Since(startTime)
+
+	// Display the elapsed time
+	fmt.Println("Elapsed time:", elapsedTime)
+}
 
 // Function to create a new instance of the web crawler
 func newCrawler(domain, homeURL string) *Crawler {

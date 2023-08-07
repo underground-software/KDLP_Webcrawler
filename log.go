@@ -4,6 +4,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"path/filepath"
 )
 
 func getCurrentDirectory() (string, error) {
@@ -25,4 +26,21 @@ func openErrorLogFile(logFilePath string) (*os.File, error) {
 	log.SetOutput(logOutput)
 
 	return file, nil
+}
+
+func initializeErrorLogging() {
+	// Get the current working directory
+	currentDir, err := getCurrentDirectory()
+	if err != nil {
+		log.Fatal("Failed to get current working directory:", err)
+	}
+
+	// Construct the path for the error log file in the current directory
+	logFilePath := filepath.Join(currentDir, "error_log.txt")
+
+	// Sets logged errors to print to both error log file and terminal
+	_, err = openErrorLogFile(logFilePath)
+	if err != nil {
+		log.Fatal("Failed to open error log file:", err)
+	}
 }

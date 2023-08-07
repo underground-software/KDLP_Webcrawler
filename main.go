@@ -1,10 +1,14 @@
+/*
+ * This code includes portions of Colly (https://github.com/gocolly/colly)
+ * Copyright (c) 2018 Fábio Berger <https://github.com/fabioberger>
+ * Licensed under the Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
+ */
+
 package main
 
 import (
 	"fmt"
-	"log"
 	"os"
-	"path/filepath"
 )
 
 func help() {
@@ -20,20 +24,7 @@ func help() {
 
 func main() {
 
-	// Get the current working directory
-	currentDir, err := getCurrentDirectory()
-	if err != nil {
-		log.Fatal("Failed to get current working directory:", err)
-	}
-
-	// Construct the path for the error log file in the current directory
-	logFilePath := filepath.Join(currentDir, "error_log.txt")
-
-	// Sets logged errors to print to both error log file and terminal
-	_, err = openErrorLogFile(logFilePath)
-	if err != nil {
-		log.Fatal("Failed to open error log file:", err)
-	}
+	initializeErrorLogging()
 
 	switch os.Args[1] {
 
@@ -48,28 +39,16 @@ func main() {
 		domain := "https://prod-01.kdlp.underground.software/"
 		homeURL := domain + "index.md"
 
-		// // Public version
+		// Public version
 		// domain := "https://kdlp.underground.software/"
 		// homeURL := domain + "index.html"
 
-		// Create a new instance of crawler
-		crawler := newCrawler(domain, homeURL)
+		// Call the crawl process
+		runCustomCrawl(domain, homeURL)
 
-		// Call the crawlURL function on the KDLP home page
-		crawler.crawlURL(homeURL, "") // Empty string for storing URLs
-
-		// Check if there are any dead links
-		if len(crawler.deadLinks) > 0 {
-
-			// Display file path for dead links
-			fmt.Println("Dead links written to: dead_links.txt")
-
-		} else {
-
-			// Display no dead links found in terminal, no dead links file is created
-			fmt.Println("No dead links found")
-
-		}
+	case "--crawl-colly":
+		baseURL := "prod-01.kdlp.underground.software"
+		StartCollyCrawl(baseURL)
 
 	default:
 
