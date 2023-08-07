@@ -22,5 +22,5 @@ Golang application for identifying dead links on KDLP website
    ```bash
    -h, --help       shows a manual
    --crawl          recursively crawls domain and retrieves dead links with reference URLS
-
+   --crawl-colly    crawls domain for dead links via colly
    ```

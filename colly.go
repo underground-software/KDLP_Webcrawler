@@ -1,6 +1,6 @@
 /*
  * This code includes portions of Colly (https://github.com/gocolly/colly)
- * Copyright (c) 2018 Fábio Berger <https://github.com/fabioberger>
+ * Copyright (c) 2017 Adam Tauber (asciimoo) <https://github.com/asciimoo>
  * Licensed under the Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
