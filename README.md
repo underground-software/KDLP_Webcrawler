@@ -1,20 +1,21 @@
 # KDLP_Webcrawler
+
 Golang application for identifying dead links on KDLP website
 
-# Setup
+## Setup
 
-1. Go to the project directory and compile the source code. 
+1. Go to the project directory and compile the source code.
 
    ```bash
-   $ go build -o webcrawler  
+   go build -o webcrawler  
    ```
 
-# Usage
+## Usage
 
 - Usage:
-    
+
     ```bash
-    $ ./webcrawler <option>
+    ./webcrawler <option>
     ```
 
 - Options:
