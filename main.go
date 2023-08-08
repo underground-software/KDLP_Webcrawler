@@ -35,6 +35,7 @@ func main() {
 	case "--help":
 		help()
 
+		// Custom crawler which returns dead links along with their referring URL
 	case "--crawl":
 		// Set domain and starting URL for crawling
 		domain := "https://prod-01.kdlp.underground.software/"
@@ -47,6 +48,7 @@ func main() {
 		// Call the crawl process
 		runCustomCrawl(domain, homeURL)
 
+		// Colly crawler - Faster than custom crawler, but only returns dead links. Does not return referring URL.
 	case "--crawl-colly":
 		baseURL := "prod-01.kdlp.underground.software"
 		StartCollyCrawl(baseURL)

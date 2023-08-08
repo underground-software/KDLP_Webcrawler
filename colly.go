@@ -58,8 +58,6 @@ func StartCollyCrawl(baseURL string) {
 	})
 
 	c.OnError(func(r *colly.Response, err error) {
-		log.Println("Something went wrong:", err)
-
 		// Call handleDeadLink when the response status code indicates an error
 		if r != nil && r.StatusCode >= 400 {
 			handleDeadLink(r.Request.URL.String(), r.Request.URL.Path, r.StatusCode, &deadLinks)
