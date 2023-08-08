@@ -21,12 +21,12 @@ func isRelativeURLWithCgit(href string) bool {
 }
 
 // Function to handle the dead link
-func handleDeadLink(referringURL, deadURL string, statusCode int, deadLinks *[]string) {
+func handleDeadLink(deadURL string, statusCode int, deadLinks *[]string) {
 	// Log the dead link with the referring URL and status code
-	log.Println("Dead Link:", deadURL, "found on:", referringURL, "Status Code:", statusCode)
+	log.Println("Dead Link found:", deadURL, "Status Code:", statusCode)
 
 	// Append the dead link along with the referring URL to the deadLinks slice
-	*deadLinks = append(*deadLinks, "dead link "+deadURL+" found at: "+referringURL)
+	*deadLinks = append(*deadLinks, "Dead Link Found: "+deadURL)
 
 	// Save the updated deadLinks slice to the dead links file
 	if err := saveDeadLinksToFile("dead_links.txt", *deadLinks); err != nil {
@@ -36,6 +36,7 @@ func handleDeadLink(referringURL, deadURL string, statusCode int, deadLinks *[]s
 
 // Function to start crawling with colly
 func StartCollyCrawl(baseURL string) {
+
 	// Start the timer
 	startTime := time.Now()
 
@@ -58,9 +59,10 @@ func StartCollyCrawl(baseURL string) {
 	})
 
 	c.OnError(func(r *colly.Response, err error) {
+
 		// Call handleDeadLink when the response status code indicates an error
 		if r != nil && r.StatusCode >= 400 {
-			handleDeadLink(r.Request.URL.String(), r.Request.URL.Path, r.StatusCode, &deadLinks)
+			handleDeadLink(r.Request.URL.String(), r.StatusCode, &deadLinks)
 		}
 	})
 
