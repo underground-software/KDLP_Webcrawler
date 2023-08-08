@@ -26,7 +26,7 @@ func handleDeadLink(referringURL, deadURL string, statusCode int, deadLinks *[]s
 	log.Println("Dead Link:", deadURL, "found on:", referringURL, "Status Code:", statusCode)
 
 	// Append the dead link along with the referring URL to the deadLinks slice
-	*deadLinks = append(*deadLinks, "dead link "+referringURL+" => "+deadURL)
+	*deadLinks = append(*deadLinks, "dead link "+deadURL+" found at: "+referringURL)
 
 	// Save the updated deadLinks slice to the dead links file
 	if err := saveDeadLinksToFile("dead_links.txt", *deadLinks); err != nil {
